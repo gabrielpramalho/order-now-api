@@ -1,5 +1,5 @@
 {
-  "name": "order-now-api",
+  "name": "remind-pay-api",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -10,15 +10,28 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@fastify/cors": "^11.0.1",
+    "@fastify/cors": "^9.0.1",
+    "@fastify/jwt": "^8.0.1",
+    "@fastify/swagger": "^8.14.0",
+    "@fastify/swagger-ui": "^3.0.0",
+    "@prisma/client": "^5.14.0",
+    "bcryptjs": "^2.4.3",
+    "dayjs": "^1.11.11",
+    "dotenv": "^16.4.5",
+    "fastify": "^4.27.0",
+    "fastify-plugin": "^4.5.1",
+    "fastify-type-provider-zod": "^1.2.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^8.4.1",
     "@rocketseat/eslint-config": "^2.2.2",
-    "@types/node": "^22.14.1",
-    "eslint": "^8.57.1",
-    "eslint-plugin-simple-import-sort": "^12.1.1",
-    "fastify": "^5.3.0",
-    "fastify-type-provider-zod": "^4.0.2",
-    "tsx": "^4.19.3",
-    "typescript": "^5.8.3",
-    "zod": "^3.24.2"
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^20.12.12",
+    "eslint": "^8.0.0",
+    "eslint-plugin-simple-import-sort": "^12.1.0",
+    "prisma": "^5.14.0",
+    "tsx": "^4.10.5",
+    "typescript": "^5.4.5"
   }
 }

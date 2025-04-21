@@ -8,37 +8,52 @@ import { prisma } from '@/lib/prisma'
 
 import { BadRequestError } from '../_errors/bad-request-error'
 
-export async function createBilling(app: FastifyInstance) {
+export async function updateBilling(app: FastifyInstance) {
   app
     .withTypeProvider<ZodTypeProvider>()
     .register(auth)
-    .post(
-      '/billing',
+    .put(
+      '/billings/:billingId',
       {
         schema: {
           tags: ['billing'],
-          summary: 'Create a billing',
+          summary: 'Update a billing',
           security: [{ bearerAuth: [] }],
+          params: z.object({
+            billingId: z.string().uuid(),
+          }),
           body: z.object({
             ownerName: z.string(),
             ownerEmail: z.string().email(),
             ownerPhone: z.string().nullable(),
             date: z.coerce.date(),
             value: z.string(),
+            status: z.union([
+              z.literal('PENDING'),
+              z.literal('EXPIRED'),
+              z.literal('PAID'),
+            ]),
             observation: z.string().nullable(),
           }),
           response: {
-            201: z.object({
-              billingId: z.string().uuid(),
-            }),
+            204: z.null(),
           },
         },
       },
       async (request, reply) => {
         const userId = await request.getCurrentUserId()
 
-        const { date, observation, ownerEmail, ownerName, ownerPhone, value } =
-          request.body
+        const { billingId } = request.params
+
+        const {
+          date,
+          observation,
+          ownerEmail,
+          ownerName,
+          ownerPhone,
+          value,
+          status,
+        } = request.body
 
         const user = await prisma.user.findUnique({
           where: {
@@ -56,20 +71,34 @@ export async function createBilling(app: FastifyInstance) {
           throw new BadRequestError('Date is invalid')
         }
 
-        const billing = await prisma.billing.create({
-          data: {
-            date,
-            ownerEmail,
-            ownerName,
-            value,
-            observation,
-            ownerPhone,
+        const billing = await prisma.billing.findUnique({
+          where: {
+            id: billingId,
             userId,
-            status: 'PENDING',
           },
         })
 
-        return reply.status(201).send({ billingId: billing.id })
+        if (!billing) {
+          throw new BadRequestError('Billing not found')
+        }
+
+        await prisma.billing.update({
+          where: {
+            id: billingId,
+            userId,
+          },
+          data: {
+            date,
+            observation,
+            ownerEmail,
+            ownerName,
+            ownerPhone,
+            value,
+            status,
+          },
+        })
+
+        return reply.status(204).send()
       },
     )
 }

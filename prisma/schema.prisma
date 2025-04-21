@@ -6,3 +6,52 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id           String    @id @default(uuid())
+  name         String
+  email        String    @unique
+  passwordHash String    @map("password_hash")
+  avatarUrl    String?   @map("avatar_url")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  tokens       Token[]
+  Billing      Billing[]
+
+  @@map("users")
+}
+
+enum TokenType {
+  PASSWORD_RECOVER
+}
+
+model Token {
+  id        String    @id @default(uuid())
+  type      TokenType
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @map("user_id")
+
+  @@map("tokens")
+}
+
+enum StatusTypes {
+  PENDING
+  EXPIRED
+  PAID
+}
+
+model Billing {
+  id          String      @id @default(uuid())
+  ownerName   String      @map("owner_name")
+  ownerEmail  String      @map("owner_email")
+  ownerPhone  String?     @map("owner_phone")
+  date        DateTime
+  value       String
+  observation String
+  status      StatusTypes
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String @map("user_id")
+}
